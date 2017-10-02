@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     specialAsyncClass.execute(url);
   }
 
-  private class SpecialAsyncClass extends AsyncTask<String, Void, String> {
+  private class SpecialAsyncClass extends AsyncTask<String, String, String> {
 
     String result = "";
     URL url;
@@ -40,11 +40,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onProgressUpdate(String... values) {
+      super.onProgressUpdate(values);
+
+      Toast.makeText(MainActivity.this, values[0], Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     protected String doInBackground(String... strings) {
       try {
+
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
             Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
+
         if (netInfo != null && netInfo.isConnected()) {
           url = new URL(strings[0]);
           httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -56,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
             result += character;
             data = inputStreamReader.read();
           }
-          Toast.makeText(MainActivity.this, "Wifi Var", Toast.LENGTH_SHORT).show();
+          publishProgress("Başarılı");
           return result;
         } else {
-          Toast.makeText(MainActivity.this, "Wifi Yok", Toast.LENGTH_SHORT).show();
+          publishProgress("İnternet Bağlantını Kontrol Et");
           return null;
         }
       } catch (Exception e) {
